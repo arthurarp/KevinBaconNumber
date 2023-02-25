@@ -1,37 +1,40 @@
 import React, { useState, useEffect } from "react";
 import Graph from "react-graph-vis";
 import options from "../../jsons/options.json";
+import example from "../../jsons/example.json";
+import api from "../../api";
 import {
   Container,
   Header,
   Body,
   SideMenu,
   GraphContainer,
+  Button,
   Text,
   Input,
+  Footer,
+  LoadingContainer
 } from "./styles";
+import ReactLoading from 'react-loading';
 
 export default function Home() {
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [userInputed, setUserInputed] = useState("");
-  const graph = {
-    nodes: [
-      { id: 1, label: "Node 1", title: "node 1 tootip text" },
-      { id: 2, label: "Node 2", title: "node 2 tootip text" },
-      { id: 3, label: "Node 3", title: "node 3 tootip text" },
-      { id: 4, label: "Node 4", title: "node 4 tootip text" },
-      { id: 5, label: "Node 5", title: "node 5 tootip text" }
-    ],
-    edges: [
-      { from: 1, to: 2 },
-      { from: 1, to: 3 },
-      { from: 2, to: 4 },
-      { from: 2, to: 5 }
-    ]
-  };
+  const [levelInputed, setLevelInputed] = useState("");
+  const [userSelected, setUserSelected] = useState("");
+  const [graph, setGraph] = useState({
+    nodes: [],
+    edges: []
+  });
+  const [totalNodes, setTotalNodes] = useState(0);
+  const [totalEdges, setTotalEdges] = useState(0);
+  const [loading, setLoading] = useState(false);
+  // const [graph, setGraph] = useState(example);
+
   const events = {
     select: function(event) {
       var { nodes, edges } = event;
+      setUserSelected(nodes[0])
     }
   };
 
@@ -52,6 +55,25 @@ export default function Home() {
     };
   }
 
+  async function handleSubmit() {
+    if (levelInputed === "" || userInputed === "") {
+      alert("Preencha todos os campos");
+      return
+    }
+    if (levelInputed > 5) {
+      alert("O grau de separação não pode ser maior que 5");
+      return
+    }
+    setLoading(true);
+    let response = await api.get(`${userInputed}/graph/${levelInputed}`);
+    console.log(response.data)
+    setGraph(response.data)
+    setTotalNodes(response.data.nodes.length)
+    setTotalEdges(response.data.edges.length)
+    setLoading(false);
+
+  }
+
   return (
     <Container>
       <Header>
@@ -66,21 +88,46 @@ export default function Home() {
             required
             onChange={(input) => {
               setUserInputed(input.target.value);
-              console.log(userInputed)
             }}
-            placeholder="git user"
-          
+            placeholder="Usuário Github"
           />
-          
+          <Input 
+            value={levelInputed}
+            required
+            onChange={(input) => {
+              setLevelInputed(input.target.value);
+            }}
+            placeholder="Graus de separação"
+          />
+          <Button type="submit" onClick={handleSubmit}>
+            <Text>
+              Gerar grafo
+            </Text>
+          </Button> 
+          <Text>
+            Total de vértices: {totalNodes}
+          </Text>
+          <Text>
+            Total de arestas: {totalEdges}
+          </Text>
         </SideMenu>
-        <GraphContainer>
+        {loading ? 
+        (<LoadingContainer>
+          <ReactLoading type={'spin'} color={'#fff'} height={windowDimensions.width * 0.1} width={windowDimensions.width * 0.1} />
+        </LoadingContainer>)  :
+        (<GraphContainer>
           <Graph 
             graph={graph}
             options={options} 
             events={events} 
           />
-        </GraphContainer>
+        </GraphContainer>)}
       </Body>
+      <Footer>
+        <Text>
+          {userSelected}
+        </Text>
+      </Footer>
     </Container>
   );
 }
