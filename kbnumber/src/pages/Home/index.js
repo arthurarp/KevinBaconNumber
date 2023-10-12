@@ -13,7 +13,9 @@ import {
   Text,
   Input,
   Footer,
-  LoadingContainer
+  LoadingContainer,
+  RestoreButton,
+  TextInput
 } from "./styles";
 import ReactLoading from 'react-loading';
 
@@ -22,7 +24,12 @@ export default function Home() {
   const [userInputed, setUserInputed] = useState("");
   const [levelInputed, setLevelInputed] = useState("");
   const [userSelected, setUserSelected] = useState("");
+  const [destinyInputed, setDestinyInputed] = useState("");
   const [graph, setGraph] = useState({
+    nodes: [],
+    edges: []
+  });
+  const [backupGraph, setBackupGraph] = useState({
     nodes: [],
     edges: []
   });
@@ -66,23 +73,53 @@ export default function Home() {
     }
     setLoading(true);
     let response = await api.get(`${userInputed}/graph/${levelInputed}`);
+
+    if (!response.data) {
+      alert("Erro ao gerar grafo");
+      setLoading(false);
+      return
+    }
     console.log(response.data)
     setGraph(response.data)
+    setBackupGraph(response.data)
     setTotalNodes(response.data.nodes.length)
     setTotalEdges(response.data.edges.length)
     setLoading(false);
 
   }
 
+  async function handleSearch() {
+    setLoading(true);
+    let response = await api.post(`search`, {
+      origin: userInputed,
+      destiny: destinyInputed,
+      graph: graph
+    });
+    console.log(response.data)
+    setGraph(response.data)
+   
+    // setTotalNodes(response.data.nodes.length)
+    // setTotalEdges(response.data.edges.length)
+    setLoading(false);
+
+  }
+
+  async function handleRestore() {
+    setGraph(backupGraph)
+  }
+
   return (
     <Container>
       <Header>
-        <Text>
-          {windowDimensions.width} + {windowDimensions.height}
-        </Text>
+          <Text>
+            Total de vértices: {totalNodes} |     Total de arestas: {totalEdges}
+          </Text>
       </Header>
       <Body>
         <SideMenu>
+          <TextInput>
+            Usuário Github
+          </TextInput>
           <Input 
             value={userInputed}
             required
@@ -91,6 +128,9 @@ export default function Home() {
             }}
             placeholder="Usuário Github"
           />
+          <TextInput>
+            Número de graus
+          </TextInput>
           <Input 
             value={levelInputed}
             required
@@ -104,12 +144,34 @@ export default function Home() {
               Gerar grafo
             </Text>
           </Button> 
-          <Text>
+          {/* <Text>
             Total de vértices: {totalNodes}
           </Text>
           <Text>
             Total de arestas: {totalEdges}
-          </Text>
+          </Text> */}
+          <TextInput>
+            Usuário destino
+          </TextInput>
+          <Input 
+            value={destinyInputed}
+            required
+            onChange={(input) => {
+              setDestinyInputed(input.target.value);
+            }}
+            placeholder="Usuário destino"
+          />
+          <Button type="submit" onClick={handleSearch}>
+            <Text>
+              Buscar
+            </Text>
+          </Button> 
+
+          <RestoreButton type="submit" onClick={handleRestore}>
+            <Text>
+              Restaurar
+            </Text>
+          </RestoreButton> 
         </SideMenu>
         {loading ? 
         (<LoadingContainer>

@@ -13,7 +13,7 @@ export const Header = styled.div`
   width: 100%;
   flex-direction: column;
   vertical-align: middle;
-  background: #958ba7;
+  background: #c3c8cd;
   justify-content: center;
   align-items: center;
   display: flex;
@@ -40,9 +40,9 @@ export const Footer = styled.div`
 export const SideMenu = styled.div`
   height: 100%;
   width: 15%;
-  background: #958ba7;
+  background: #c3c8cd;
   display: flex;
-  align-items: center;
+  align-items: left;
   justify-content: center;
   flex-direction: column;
   border-right-width: 1px;
@@ -70,12 +70,24 @@ export const LoadingContainer = styled.div`
 
 export const Button = styled.button`
   height: 5%;
-  width: 80%;
+  width: 100%;
   /* background: #f00; */
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: row;
+  
+`;
+
+export const RestoreButton = styled.button`
+  height: 5%;
+  width: 100%;
+  background: #ff0000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  margin-top: 10px;
 `;
 
 export const Text = styled.p`
@@ -83,6 +95,13 @@ export const Text = styled.p`
   font-size: 20px;
   color: #000;
   text-align: center;
+`;
+
+export const TextInput = styled.p`
+  margin-top: 15px;
+  font-size: 20px;
+  color: #000;
+  text-align: left;
 `;
 
 export const Input = styled.input`

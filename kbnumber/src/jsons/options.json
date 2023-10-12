@@ -9,7 +9,7 @@
   "physics" : {
     "stabilization": {
       "enabled": true,
-      "iterations": 5000   
+      "iterations": 1   
     }
   },
 
